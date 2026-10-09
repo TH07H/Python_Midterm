@@ -1,11 +1,17 @@
-_EMPTY = ' ' # Used to indicate empty spaces in the board
+# Used to indicate empty spaces in the board
+_EMPTY = ' '
+
 
 class InvalidMoveError(ValueError):
     pass
 
+
 class ConnectFourBoard:
 
-    """Represents a Connect 4 board. Handles board state and checks moves for validity."""
+    """Represents a Connect 4 board.
+
+    Handles board state and checks moves for validity.
+    """
 
     def __init__(self, num_rows, num_cols):
         """Initialize a new board"""
@@ -60,17 +66,26 @@ class ConnectFourBoard:
         return True
 
     def add_piece(self, col, symbol):
-        """Add a piece to the specified column. Returns the row it landed in."""
+        """Add a piece to the specified column.
+
+        Returns the row it landed in.
+        """
         if not (0 <= col <= self.num_cols - 1):
-            raise InvalidMoveError("That isn't a column silly! Play a move on the board!")
+            raise InvalidMoveError(
+                "That isn't a column silly! Play a move on the board!"
+            )
         for row in reversed(range(self.num_rows)):
             if self.rows[row][col] is _EMPTY:
                 self.rows[row][col] = symbol
                 return row
         else:
             raise InvalidMoveError("That column is full!")
+
     def get_landing_row(self, col):
-        """Return the row a piece would land in for this column, or None if invalid/full."""
+        """Return the row a piece would land in for this column.
+
+        Returns None if the column is invalid or full.
+        """
         if not (0 <= col <= self.num_cols - 1):
             return None
         for row in reversed(range(self.num_rows)):

@@ -45,16 +45,6 @@ def convert_board(board, player_symbol):
     return weak_board
 
 
-def board_key(board):
-    """Create a hashable key for a board."""
-    return tuple(tuple(row) for row in board)
-
-
-def mirror_board(board):
-    """Mirror a board horizontally."""
-    return [row[::-1] for row in board]
-
-
 def col_height(board, col):
     """Return the height of a column."""
     for row in range(ROWS):
@@ -138,32 +128,6 @@ def query_steady_state(board, diagram):
     return None
 
 
-def create_branch_lookup():
-    """Create a lookup table for all WeakC4 branch positions."""
-
-    lookup = {}
-
-    for position, move in branches.items():
-        branch_board = board_from_position(position)
-
-        # Normal orientation
-        key = board_key(branch_board)
-        lookup[key] = (move, False)
-
-        # Mirrored orientation
-        mirrored = mirror_board(branch_board)
-        mirror_key = board_key(mirrored)
-        lookup[mirror_key] = (move, True)
-
-    return lookup
-
-
-branch_lookup = create_branch_lookup()
-
-
-
-
-
 def find_tactical_move(board, symbol):
     """Win immediately or block the opponent's immediate win."""
 
@@ -203,6 +167,7 @@ def find_tactical_move(board, symbol):
             return col
 
     return None
+
 
 def find_best_move(board, symbol, position):
     """Return the WeakC4 move as a zero-based column."""
@@ -253,43 +218,37 @@ def find_best_move(board, symbol, position):
 
             return best_move - 1
 
-    
-    # If no exact branch exists, look for the longest
-    # existing prefix of the current position.
+    # No exact branch: use the longest prefix (either orientation)
+    # that points to a steady-state diagram.
+    best = None
     for candidate, mirrored in (
         (position, False),
         (mirrored_position, True)
     ):
-        for end in range(len(candidate) - 1, -1, -1):
-            prefix = candidate[:end]
+        for end in range(len(candidate), -1, -1):
+            if isinstance(branches.get(candidate[:end]), int):
+                if best is None or end > best[0]:
+                    best = (end, candidate, mirrored)
+                break
 
-            if prefix not in branches:
-                continue
+    if best is not None:
+        end, candidate, mirrored = best
+        diagram = steady_states[branches[candidate[:end]]]
+        best_move = query_steady_state(
+            board_from_position(candidate), diagram
+        )
 
-            move = branches[prefix]
+        if best_move is not None:
+            if mirrored:
+                best_move = 8 - best_move
 
-            # Direct move: use it only when it is the
-            # strategy's next move for this position.
-            if isinstance(move, str):
-                move = int(move)
+            return best_move - 1
 
-                if mirrored:
-                    move = 8 - move
+    # The strategy has no answer here, so play the most central
+    # open column instead of crashing or picking a full column.
+    weak_board = board_from_position(position)
+    for col in (3, 2, 4, 1, 5, 0, 6):
+        if col_height(weak_board, col) < ROWS:
+            return col
 
-                return move - 1
-
-            # Integer values refer to steady-state diagrams.
-            weak_board = board_from_position(position)
-            diagram = steady_states[move]
-
-            best_move = query_steady_state(weak_board, diagram)
-
-            if best_move is not None:
-                if mirrored:
-                    best_move = 8 - best_move
-
-                return best_move - 1
-
-    raise ValueError(
-        f"WeakC4 has no usable branch for position {position!r}."
-    )
+    raise ValueError(f"No legal move for position {position!r}.")

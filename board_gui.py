@@ -2,14 +2,17 @@ import matplotlib.pyplot as plt
 from matplotlib.patches import Rectangle, Circle
 from matplotlib.widgets import Button
 
+
 def animate_drop(ax, fig, board, color_map, col, final_row, symbol):
-    """Animate a piece falling by temporarily placing it in each row, top to bottom."""
+    """Animate a piece falling by temporarily placing it in each row,
+    top to bottom."""
     for row in range(0, final_row + 1):
         board.rows[row][col] = symbol   # temporarily place it here
         draw_pieces(ax, board, color_map, col)
         fig.canvas.draw_idle()
         plt.pause(0.01)
         board.rows[row][col] = ' '      # clear it before the next frame
+
 
 def draw_board_full(ax, board, color_map):
     ax.clear()
@@ -18,8 +21,10 @@ def draw_board_full(ax, board, color_map):
     ax.set_aspect('equal')
     ax.axis('off')
 
-    rectback = Rectangle((-1.25, -1.25), board.num_cols + 2, board.num_rows + 2, color='#01115e')
-    rect = Rectangle((-1.25, -1.25), board.num_cols + 0.8, board.num_rows + 0.92, color='#002aff')
+    rectback = Rectangle((-1.25, -1.25), board.num_cols + 2,
+                         board.num_rows + 2, color='#01115e')
+    rect = Rectangle((-1.25, -1.25), board.num_cols + 0.8,
+                     board.num_rows + 0.92, color='#002aff')
     circlecorner = Circle((-10, 16.16), radius=14.14, color='white')
     circlecornerl = Circle((16.16, -10), radius=13.5, color='white')
     ax.add_patch(rectback)
@@ -34,7 +39,8 @@ def draw_board_full(ax, board, color_map):
 
             x_shadow = col - 0.04
             y_shadow = board.num_rows - 1 - row
-            shadow = Circle((x_shadow, y_shadow), radius=0.4, facecolor=shadow_color, edgecolor='black')
+            shadow = Circle((x_shadow, y_shadow), radius=0.4,
+                            facecolor=shadow_color, edgecolor='black')
             ax.add_patch(shadow)
 
             x_main = col
@@ -42,14 +48,17 @@ def draw_board_full(ax, board, color_map):
             main = Circle((x_main, y_main), radius=0.4, color=main_color)
             ax.add_patch(main)
 
+
 def draw_board(ax, board, color_map):
     ax.set_xlim(-0.5, board.num_cols - 0.3)
     ax.set_ylim(-0.5, board.num_rows - 0.2)
     ax.set_aspect('equal')
     ax.axis('off')
 
-    rectback = Rectangle((-1.25, -1.25), board.num_cols + 2, board.num_rows + 2, color='#01115e')
-    rect = Rectangle((-1.25, -1.25), board.num_cols + 0.8, board.num_rows + 0.92, color='#002aff')
+    rectback = Rectangle((-1.25, -1.25), board.num_cols + 2,
+                         board.num_rows + 2, color='#01115e')
+    rect = Rectangle((-1.25, -1.25), board.num_cols + 0.8,
+                     board.num_rows + 0.92, color='#002aff')
     circlecorner = Circle((-10, 16.16), radius=14.14, color='white')
     circlecornerl = Circle((16.16, -10), radius=13.5, color='white')
     ax.add_patch(rectback)
@@ -57,21 +66,21 @@ def draw_board(ax, board, color_map):
     ax.add_patch(circlecorner)
     ax.add_patch(circlecornerl)
 
+
 def draw_pieces(ax, board, color_map, col):
     ax.set_xlim(-0.5, board.num_cols - 0.3)
     ax.set_ylim(-0.5, board.num_rows - 0.2)
     ax.set_aspect('equal')
     ax.axis('off')
 
-
-
     for row in range(board.num_rows):
-    
+
         symbol = board.rows[row][col]
         main_color, shadow_color = color_map[symbol]
         x_shadow = col - 0.04
         y_shadow = board.num_rows - 1 - row
-        shadow = Circle((x_shadow, y_shadow), radius=0.4, facecolor=shadow_color, edgecolor='black')
+        shadow = Circle((x_shadow, y_shadow), radius=0.4,
+                        facecolor=shadow_color, edgecolor='black')
         ax.add_patch(shadow)
         x_main = col
         y_main = board.num_rows - 0.95 - row
@@ -80,7 +89,8 @@ def draw_pieces(ax, board, color_map, col):
 
 
 def select_display_mode():
-    """Show a GUI with two buttons; return 'console' or 'matplotlib' based on click."""
+    """Show a GUI with two buttons; return 'console' or 'matplotlib'
+    based on click."""
     fig, ax = plt.subplots()
     ax.set_title("Choose display mode")
     ax.axis('off')
@@ -138,6 +148,7 @@ def select_opponent_type():
 
     return choice['mode']
 
+
 def select_play_again():
     """Show a GUI with two buttons; return True or False based on click."""
     fig, ax = plt.subplots()
@@ -149,7 +160,6 @@ def select_play_again():
     def choose_yes(event):
         choice['again'] = True
         plt.close(fig)
-        
 
     def choose_no(event):
         choice['again'] = False
@@ -166,7 +176,7 @@ def select_play_again():
 
     plt.show()
 
-    return choice['again'] 
+    return choice['again']
 
 
 if __name__ == "__main__":

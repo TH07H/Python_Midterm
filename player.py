@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
-from board_gui import draw_board, draw_board_full
+from board_gui import draw_board_full
 from perf_bot import find_best_move
+
 
 class AbstractPlayer(ABC):
     def __init__(self, symbol, name):
@@ -9,7 +10,8 @@ class AbstractPlayer(ABC):
 
     @abstractmethod
     def move(self, **kwargs):
-        """Return an integer representing the column where the player intends to play a piece."""
+        """Return an integer representing the column where the player
+        intends to play a piece."""
 
 
 class ConsolePlayer(AbstractPlayer):
@@ -29,6 +31,7 @@ class CPUPlayer(AbstractPlayer):
         position = kwargs['position']
         return find_best_move(board, self.symbol, position)
 
+
 class MatplotlibPlayer(AbstractPlayer):
     def __init__(self, symbol, name, fig, ax, color_map):
         super().__init__(symbol, name)
@@ -47,4 +50,3 @@ class MatplotlibPlayer(AbstractPlayer):
         x_clicked, y_clicked = clicked_points[0]
         col = round(x_clicked)
         return col
-

@@ -1,10 +1,15 @@
 from board import ConnectFourBoard, InvalidMoveError
 from player import ConsolePlayer, CPUPlayer, MatplotlibPlayer
-from board_gui import draw_board, select_display_mode, select_opponent_type, select_play_again, animate_drop, draw_board_full, draw_pieces
+from board_gui import (
+    select_display_mode, select_opponent_type, select_play_again,
+    animate_drop, draw_board_full, draw_pieces
+)
 import matplotlib.pyplot as plt
 
+
 class ConnectFourGame:
-    def __init__(self, display_mode, rows=6, cols=7, p1_type=ConsolePlayer, p2_type=ConsolePlayer):
+    def __init__(self, display_mode, rows=6, cols=7,
+                 p1_type=ConsolePlayer, p2_type=ConsolePlayer):
         self.board = ConnectFourBoard(rows, cols)
         self.display_mode = display_mode
 
@@ -36,7 +41,8 @@ class ConnectFourGame:
 
         def make_player(p_type, name, symbol):
             if p_type is MatplotlibPlayer:
-                return p_type(name=name, symbol=symbol, fig=self.fig, ax=self.ax, color_map=self.color_map)
+                return p_type(name=name, symbol=symbol, fig=self.fig,
+                              ax=self.ax, color_map=self.color_map)
             else:
                 return p_type(name=name, symbol=symbol)
 
@@ -80,13 +86,19 @@ class ConnectFourGame:
 
             move_is_invalid = True
             while move_is_invalid:
-                col = current_player.move(board=self.board,position=self.position)
+                col = current_player.move(
+                    board=self.board, position=self.position
+                )
                 landing_row = self.board.get_landing_row(col)
-            
-                if landing_row is not None and self.display_mode == 'matplotlib':
-                    animate_drop(self.ax, self.fig, self.board, self.color_map, col, landing_row, current_player.symbol)
+
+                if (landing_row is not None
+                        and self.display_mode == 'matplotlib'):
+                    animate_drop(
+                        self.ax, self.fig, self.board, self.color_map,
+                        col, landing_row, current_player.symbol
+                    )
                     draw_pieces(self.ax, self.board, self.color_map, col)
-            
+
                 try:
                     self.board.add_piece(col, current_player.symbol)
                     self.position += str(col + 1)
@@ -106,7 +118,6 @@ class ConnectFourGame:
             print('No winner!')
 
         if self.display_mode == 'matplotlib':
-            #draw_board(self.ax, self.board, self.color_map)
             if winner:
                 self.ax.set_title(f"{winner.name} wins!")
             else:
@@ -116,16 +127,19 @@ class ConnectFourGame:
     def get_player_symbol(self, player_name):
         symbol_is_invalid = True
         while symbol_is_invalid:
-            symbol = input(f'Enter a character to use as a symbol for {player_name}: ')
+            symbol = input(
+                f'Enter a character to use as a symbol for {player_name}: '
+            )
             symbol = symbol.strip()
             symbol = symbol[0]
             if not symbol:
                 print('Symbol must not be a whitespace character!')
             else:
-                confirmation = input(f'Use "{symbol}" for {player_name}? (y/N): ')
+                confirmation = input(
+                    f'Use "{symbol}" for {player_name}? (y/N): '
+                )
                 symbol_is_invalid = not confirmation.lower().startswith('y')
         return symbol
-
 
 
 if __name__ == "__main__":
@@ -137,7 +151,11 @@ if __name__ == "__main__":
     else:
         while True:
             game_mode = input(
-                "Choose game mode:\n""1. Play against CPU\n""2. Play against another player\n""Enter 1 or 2: ").strip()
+                "Choose game mode:\n"
+                "1. Play against CPU\n"
+                "2. Play against another player\n"
+                "Enter 1 or 2: "
+            ).strip()
 
             if game_mode == "1":
                 opponent = 'cpu'
@@ -170,4 +188,3 @@ if __name__ == "__main__":
             keep_playing = input(
                 'Play again? (y/N): '
             ).lower().startswith('y')
-
