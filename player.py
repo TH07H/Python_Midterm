@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from board_gui import draw_board, draw_board_full
-import random
+from perf_bot import find_best_move
 
 class AbstractPlayer(ABC):
     def __init__(self, symbol, name):
@@ -22,18 +22,12 @@ class ConsolePlayer(AbstractPlayer):
             except ValueError:
                 print(f'"{raw_input}" is not a number!')
 
+
 class CPUPlayer(AbstractPlayer):
     def move(self, **kwargs):
-        """Select a random available column."""
         board = kwargs['board']
-
-        valid_columns = []
-
-        for col in range(board.num_cols):
-            if board.rows[0][col] == ' ':
-                valid_columns.append(col)
-
-        return random.choice(valid_columns)
+        position = kwargs['position']
+        return find_best_move(board, self.symbol, position)
 
 class MatplotlibPlayer(AbstractPlayer):
     def __init__(self, symbol, name, fig, ax, color_map):
