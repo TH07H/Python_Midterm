@@ -44,10 +44,12 @@ class ConnectFourGame:
         self.player_2 = make_player(p2_type, 'Player 2', p2_symbol)
 
         self.turn = 0
+        self.position = ""
 
     def start(self):
         self.board.clear()
         self.turn = 0
+        self.position = ""
 
         if self.display_mode == 'matplotlib':
             plt.close(self.fig)
@@ -78,7 +80,7 @@ class ConnectFourGame:
 
             move_is_invalid = True
             while move_is_invalid:
-                col = current_player.move(board=self.board)
+                col = current_player.move(board=self.board,position=self.position)
                 landing_row = self.board.get_landing_row(col)
             
                 if landing_row is not None and self.display_mode == 'matplotlib':
@@ -87,7 +89,10 @@ class ConnectFourGame:
             
                 try:
                     self.board.add_piece(col, current_player.symbol)
+                    self.position += str(col + 1)
                     move_is_invalid = False
+                    if self.display_mode == 'console':
+                        self.board.display()
                 except InvalidMoveError as err:
                     print(str(err))
 
@@ -122,14 +127,18 @@ class ConnectFourGame:
         return symbol
 
 
+
 if __name__ == "__main__":
     display_mode = select_display_mode()
 
     if display_mode == 'matplotlib':
         opponent = select_opponent_type()
+
     else:
         while True:
-            game_mode = input("Play against CPU or another player? \nFor CPU enter 1. \nFor another player enter 2): \n").lower()
+            game_mode = input(
+                "Choose game mode:\n""1. Play against CPU\n""2. Play against another player\n""Enter 1 or 2: ").strip()
+
             if game_mode == "1":
                 opponent = 'cpu'
                 break
@@ -140,17 +149,25 @@ if __name__ == "__main__":
                 print("Please enter 1 or 2")
 
     if opponent == 'cpu':
-        game = ConnectFourGame(display_mode=display_mode, p2_type=CPUPlayer)
+        game = ConnectFourGame(
+            display_mode=display_mode,
+            p1_type=CPUPlayer,
+            p2_type=ConsolePlayer
+        )
     else:
         game = ConnectFourGame(display_mode=display_mode)
 
     keep_playing = True
     while keep_playing:
         game.start()
-        plt.close(game.fig)
+
+        if game.fig is not None:
+            plt.close(game.fig)
+
         if display_mode == 'matplotlib':
             keep_playing = select_play_again()
-
-
         else:
-            keep_playing = input('Play again? (y/N): ').lower().startswith('y')
+            keep_playing = input(
+                'Play again? (y/N): '
+            ).lower().startswith('y')
+

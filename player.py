@@ -1,30 +1,6 @@
 from abc import ABC, abstractmethod
 from board_gui import draw_board, draw_board_full
-import random, time
-from perf_bot import Position, best_move, WIDTH, HEIGHT
-
-SOLVER_MIN_STONES = 10   # testing only: below this many stones, play randomly
-
-def board_to_position(board, my_symbol):
-    rows = board.rows
-    if len(rows) != HEIGHT or len(rows[0]) != WIDTH:
-        raise ValueError(f"solver supports a {WIDTH}x{HEIGHT} board")
-    current = mask = moves = 0
-    for r, row in enumerate(rows):
-        height = HEIGHT - 1 - r          # 0 = bottom row
-        for col, cell in enumerate(row):
-            if cell == ' ':
-                continue
-            bit = 1 << (col * (HEIGHT + 1) + height)
-            mask |= bit
-            moves += 1
-            if cell == my_symbol:
-                current |= bit
-    pos = Position()
-    pos.current, pos.mask, pos.moves = current, mask, moves
-    return pos
-
-
+from perf_bot import find_best_move
 
 class AbstractPlayer(ABC):
     def __init__(self, symbol, name):
@@ -46,32 +22,12 @@ class ConsolePlayer(AbstractPlayer):
             except ValueError:
                 print(f'"{raw_input}" is not a number!')
 
+
 class CPUPlayer(AbstractPlayer):
     def move(self, **kwargs):
         board = kwargs['board']
-        pos = board_to_position(board, self.symbol)
-
-        if pos.moves < SOLVER_MIN_STONES:
-            valid = [c for c in range(board.num_cols) if board.rows[0][c] == ' ']
-            return random.choice(valid)
-
-        start = time.time()
-        col, score = best_move(pos)
-        print(f"CPU: column {col}, score {score}, {time.time() - start:.1f}s")
-        return col
-
-#class CPUPlayer(AbstractPlayer):
-#    def move(self, **kwargs):
-#        """Select a random available column."""
-#        board = kwargs['board']
-#
-#        valid_columns = []
-#
-#        for col in range(board.num_cols):
-#            if board.rows[0][col] == ' ':
-#                valid_columns.append(col)
-#
-#        return random.choice(valid_columns)
+        position = kwargs['position']
+        return find_best_move(board, self.symbol, position)
 
 class MatplotlibPlayer(AbstractPlayer):
     def __init__(self, symbol, name, fig, ax, color_map):
